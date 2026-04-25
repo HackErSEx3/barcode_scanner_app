@@ -458,9 +458,9 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen>
                   color: Colors.black54,
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: Text(
+                child: const Text(
                   'Align barcode within the green box',
-                  style: const TextStyle(color: Colors.white, fontSize: 13),
+                  style: TextStyle(color: Colors.white, fontSize: 13),
                 ),
               ),
             ),

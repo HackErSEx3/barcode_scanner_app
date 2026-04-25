@@ -168,13 +168,18 @@ class DatabaseHelper {
 
   /// Removes oldest entries so total count stays at or below [maxCount].
   Future<void> enforceMaxSize(int maxCount) async {
+    // Validate that maxCount is a positive integer to prevent any injection risk
+    // via the LIMIT clause, which does not support parameterised binding in
+    // most SQLite drivers.
+    assert(maxCount > 0, 'maxCount must be a positive integer');
+    final safeLimit = maxCount.abs();
     final db = await database;
     await db.execute('''
       DELETE FROM $tableScannedBarcodes
       WHERE id NOT IN (
         SELECT id FROM $tableScannedBarcodes
         ORDER BY scannedAt DESC
-        LIMIT $maxCount
+        LIMIT $safeLimit
       )
     ''');
   }

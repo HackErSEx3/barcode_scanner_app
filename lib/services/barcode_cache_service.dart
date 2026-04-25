@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import '../models/scanned_barcode.dart';
 import 'database_helper.dart';
 
@@ -21,6 +23,9 @@ class BarcodeCacheService {
   static final BarcodeCacheService instance = BarcodeCacheService._();
 
   final DatabaseHelper _db = DatabaseHelper.instance;
+
+  /// Guards against concurrent `enforceMaxSize` calls triggered by rapid scans.
+  bool _cleanupInProgress = false;
 
   // ---------------------------------------------------------------------------
   // Configuration
@@ -53,8 +58,16 @@ class BarcodeCacheService {
 
     await _db.insert(barcode);
 
-    // Enforce size limit asynchronously so it doesn't block the scan flow
-    _db.enforceMaxSize(maxCacheSize);
+    // Enforce size limit in the background; skip if a cleanup is already running
+    // to avoid concurrent database writes.
+    if (!_cleanupInProgress) {
+      _cleanupInProgress = true;
+      unawaited(
+        _db.enforceMaxSize(maxCacheSize).whenComplete(() {
+          _cleanupInProgress = false;
+        }),
+      );
+    }
 
     return null; // success
   }
