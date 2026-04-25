@@ -34,7 +34,7 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
   List<Barcode> _currentBarcodes = [];
   DateTime? _lastProcessTime;
 
-  static const _processThrottleMs = 300;
+  static const _processThrottleMilliseconds = 300;
 
   @override
   void initState() {
@@ -98,7 +98,7 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
 
     final now = DateTime.now();
     if (_lastProcessTime != null &&
-        now.difference(_lastProcessTime!).inMilliseconds < _processThrottleMs) {
+        now.difference(_lastProcessTime!).inMilliseconds < _processThrottleMilliseconds) {
       return;
     }
     _lastProcessTime = now;
